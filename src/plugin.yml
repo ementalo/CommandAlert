@@ -3,3 +3,7 @@ version: 0.1
 main: com.ementalo.commandalert.CommandAlert
 authors:
   - ementalo
+commands:
+  cmdcheck:
+    description: Teleports you to the location the commmand was used
+    usage: /<command> <id| X Y Z>

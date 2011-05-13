@@ -1,7 +1,5 @@
-
 package com.ementalo.commandalert;
 
-import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -11,25 +9,40 @@ import org.bukkit.event.player.PlayerListener;
 
 public class CommandAlertPlayerListener extends PlayerListener
 {
-	
 	CommandAlert parent = null;
-	Location[] alertLocations = new Location[30];
+	int maxLocations = 30;
+	Location[] alertLocations = null;
 	int index = 0;
 
 	public CommandAlertPlayerListener(CommandAlert parent)
 	{
+		maxLocations = parent.getLocationHistory();
+		alertLocations =  new Location[maxLocations];
 		this.parent = parent;
 	}
 
 	@Override
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
 	{
-		//reset the index
-		if(index == 30) 
-		{index=0;}
-		if (event.isCancelled()) return;
+		if (event.isCancelled() || event.getMessage().contains("cmdcheck".toLowerCase())) return;
 		String cmd = event.getMessage();
-		
+
+		if (parent.getMode().equalsIgnoreCase("whitelist") && parent.getCommandList().contains(cmd.split(" ")[0].replace("/", "").toLowerCase()))
+		{
+			return;
+		}
+
+		if (parent.getMode().equalsIgnoreCase("blacklist") && !parent.getCommandList().contains(cmd.split(" ")[0].replace("/", "").toLowerCase()))
+		{
+			return;
+		}
+
+
+		//reset the index
+		if (index == maxLocations)
+		{
+			index = 0;
+		}
 
 		for (Player p : parent.getServer().getOnlinePlayers())
 		{
@@ -37,9 +50,10 @@ public class CommandAlertPlayerListener extends PlayerListener
 			{
 				alertLocations[index] = event.getPlayer().getLocation();
 				p.sendMessage(FormatAlert(event.getPlayer(), cmd));
-				LogToFile(FormatAlert(event.getPlayer(), cmd));				
-				if(index == 30)
-				{index = 0;}
+				if (parent.logToFile())
+				{
+					LogToFile(FormatAlert(event.getPlayer(), cmd));
+				}
 				index++;
 			}
 		}
@@ -48,9 +62,9 @@ public class CommandAlertPlayerListener extends PlayerListener
 
 	public String FormatAlert(Player player, String command)
 	{
-		return  "[" + ChatColor.AQUA + index + ChatColor.WHITE + "] " + player.getDisplayName() + " used command: " + command ;
+		return "[" + ChatColor.AQUA + index + ChatColor.WHITE + "] " + player.getDisplayName() + " used command: " + command;
 	}
-	
+
 	public void LogToFile(String formattedAlert)
 	{
 		parent.cmdAlertLog.info(formattedAlert);
