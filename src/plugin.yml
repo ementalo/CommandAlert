@@ -1,0 +1,5 @@
+name: CommandAlert
+version: 0.1
+main: com.ementalo.commandalert.CommandAlert
+authors:
+  - ementalo
