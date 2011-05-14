@@ -114,7 +114,7 @@ public class CommandAlert extends JavaPlugin
 		{
 			cmdAlertLog.setUseParentHandlers(false);
 			cmdAlertLog.setLevel(Level.INFO);
-			fileHandle = new FileHandler(this.getDataFolder() + "/logs/" + formatDateFromMs(System.currentTimeMillis(), "yyyy-MM-dd") + ".log");
+			fileHandle = new FileHandler(this.getDataFolder() + "/logs/" + formatDateFromMs(System.currentTimeMillis(), "yyyy-MM-dd") + ".log", true);
 			fileHandle.setFormatter(new CommandAlertLog());
 			cmdAlertLog.addHandler(fileHandle);
 		}
