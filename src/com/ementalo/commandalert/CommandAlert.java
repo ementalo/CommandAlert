@@ -174,15 +174,16 @@ public class CommandAlert extends JavaPlugin
 		Player player = (Player)sender;
 		if (commandLabel.equalsIgnoreCase("cmdcheck") && hasPermission("commandalert.cmdcheck", player))
 		{
+			int id =0;
 			try
 			{
-				int id = Integer.parseInt(args[0]);
+				id = Integer.parseInt(args[0]);
 			}
 			catch (NumberFormatException e)
 			{
 				return false;
 			}
-			Location playerLocation = playerListener.alertLocations[args.length < 1 ? playerListener.index - 1 : Integer.parseInt(args[0])];
+			Location playerLocation = playerListener.alertLocations[args.length < 1 ? playerListener.index - 1 : id];
 			if (args.length < 1)
 			{
 				if (playerLocation == null)
@@ -190,15 +191,16 @@ public class CommandAlert extends JavaPlugin
 					player.sendMessage("Error: That location is no longer in the history");
 					return true;
 				}
-				player.sendMessage("Teleporting to last location history");
+				player.sendMessage("Teleporting to location history");
 				player.teleport(playerLocation);
 				return true;
 			}
 			if (args.length == 1)
 			{
-				if (playerListener.alertLocations[Integer.parseInt(args[0])] == null)
+				if (playerListener.alertLocations[id] == null)
 				{
 					player.sendMessage(ChatColor.RED + "That id is not present in the current location history list");
+					return true;
 				}
 				player.sendMessage("Teleporting to last location history");
 				player.teleport(playerLocation);
