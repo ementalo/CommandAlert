@@ -1,5 +1,6 @@
 package com.ementalo.commandalert;
 
+import java.text.DecimalFormat;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -24,8 +25,10 @@ public class CommandAlertPlayerListener extends PlayerListener
 	@Override
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event)
 	{
-		if (event.isCancelled() || event.getMessage().contains("cmdcheck".toLowerCase())) return;
+		Player player = event.getPlayer();
+		if (event.isCancelled() || event.getMessage().contains("cmdcheck".toLowerCase()) || parent.hasPermission("commandalert.notrigger", player)) return;
 		String cmd = event.getMessage();
+
 
 		if (parent.getMode().equalsIgnoreCase("whitelist") && parent.getCommandList().contains(cmd.split(" ")[0].replace("/", "").toLowerCase()))
 		{
@@ -48,13 +51,13 @@ public class CommandAlertPlayerListener extends PlayerListener
 
 		for (Player p : parent.getServer().getOnlinePlayers())
 		{
-			if (parent.hasPermission("commandalert.alerts", p) && !parent.hasPermission("commandalert.noalerts", p))
+			if (parent.hasPermission("commandalert.alerts", p))
 			{
-				alertLocations[index] = event.getPlayer().getLocation();
-				p.sendMessage(FormatAlert(event.getPlayer(), cmd));
+				alertLocations[index] = player.getLocation();
+				p.sendMessage(FormatAlert(player, cmd));
 				if (parent.logToFile())
 				{
-					LogToFile(FormatAlert(event.getPlayer(), cmd));
+					LogToFile(FormatAlert(player, cmd) +" at " + FormatCoords(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()));
 				}
 				index++;
 			}
@@ -65,6 +68,12 @@ public class CommandAlertPlayerListener extends PlayerListener
 	public String FormatAlert(Player player, String command)
 	{
 		return "[" + ChatColor.AQUA + index + ChatColor.WHITE + "] " + player.getDisplayName() + " used command: " + command;
+	}
+
+	public String FormatCoords(double x, double y, double z)
+	{
+		DecimalFormat fmt = new DecimalFormat("0.##");
+		return "X= " + String.valueOf(fmt.format(x)) + " Y=" + String.valueOf(fmt.format(y)) + " Z=" + String.valueOf(fmt.format(z));
 	}
 
 	public void LogToFile(String formattedAlert)

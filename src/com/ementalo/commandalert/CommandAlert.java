@@ -83,6 +83,7 @@ public class CommandAlert extends JavaPlugin
 			if (base.isOp())
 			{
 				return true;
+				
 			}
 			return false;
 		}
@@ -175,6 +176,11 @@ public class CommandAlert extends JavaPlugin
 			Location playerLocation = playerListener.alertLocations[args.length < 1 ? playerListener.index - 1 : Integer.parseInt(args[0])];
 			if (args.length < 1)
 			{
+				if(playerLocation == null)
+				{
+					player.sendMessage("Error: That location is no longer in the history");
+					return true;
+				}
 				player.sendMessage("Teleporting to last location history");
 				player.teleport(playerLocation);
 				return true;
@@ -186,33 +192,17 @@ public class CommandAlert extends JavaPlugin
 					player.sendMessage(ChatColor.RED + "That id is not present in the current location history list");
 				}
 			}
-			if (args.length == 3)
-			{
-				Location loc = null;
-				try
-				{
-					loc = new Location(playerLocation.getWorld(), Double.parseDouble(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]), player.getLocation().getYaw(), player.getLocation().getPitch());
-				}
-				catch (NumberFormatException e)
-				{
-					player.sendMessage("Values were in the incorrect formats");
-					return false;
-				}
-
-				player.sendMessage("Teleporting...");
-				player.teleport(loc);
-				return true;
-			}
-			if (args.length > 3)
+			if (args.length > 1)
 			{
 				return false;
 			}
 		}
-		if (commandLabel.equalsIgnoreCase("cmdalertr"))
+		if (commandLabel.equalsIgnoreCase("cmdalertr") && hasPermission("cmdalert.cmdalertr", player))
 		{
 			config.load();
 			playerListener.maxLocations = getLocationHistory();
 			playerListener.alertLocations = new Location[playerListener.maxLocations];
+			player.sendMessage("[CommandAlert] Reloaded Config");
 
 		}
 		return true;
