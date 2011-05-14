@@ -44,17 +44,18 @@ public class CommandAlert extends JavaPlugin
 	public Boolean isGm = false;
 	public Configuration config = null;
 	FileHandler fileHandle = null;
+
 	@Override
 	public void onDisable()
 	{
 		log.log(Level.INFO, "[CommandAlert] disabled");
 		fileHandle.close();
 	}
-	
+
 	@Override
 	public void onEnable()
 	{
-		
+
 		SetupLogging();
 		try
 		{
@@ -66,32 +67,39 @@ public class CommandAlert extends JavaPlugin
 		}
 		playerListener = new CommandAlertPlayerListener(this);
 		serverListener = new CommandAlertServerListener(this);
-		log.info("Loaded " + this.getDescription().getName() + " build " + this.getDescription().getVersion() + " maintained by " + this.getDescription().getAuthors());	
-		
+		log.info("Loaded " + this.getDescription().getName() + " build " + this.getDescription().getVersion() + " maintained by " + this.getDescription().getAuthors());
+
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Lowest, this);
 		pm.registerEvent(Type.PLUGIN_ENABLE, serverListener, Priority.Low, this);
 		pm.registerEvent(Type.PLUGIN_DISABLE, serverListener, Priority.Low, this);
-		
+
 	}
-	
+
 	public Boolean hasPermission(String node, Player base)
 	{
-		if (permPlugin == null && base.isOp())
-			return true;
+		if (permPlugin == null)
+		{
+			if (base.isOp())
+			{
+				return true;
+			}
+			return false;
+		}
+
 		if (isGm)
 		{
 			GroupManager gm = (GroupManager)permPlugin;
 			return gm.getWorldsHolder().getWorldPermissions(base).has(base, node);
-			
 		}
 		else
 		{
 			Permissions pm = (Permissions)permPlugin;
 			return pm.getHandler().has(base, node);
 		}
+
 	}
-	
+
 	public void SetupLogging()
 	{
 		File logDir = new File(this.getDataFolder(), "logs/");
@@ -106,7 +114,7 @@ public class CommandAlert extends JavaPlugin
 			fileHandle = new FileHandler(this.getDataFolder() + "/logs/" + formatDateFromMs(System.currentTimeMillis(), "yyyy-MM-dd") + ".log");
 			fileHandle.setFormatter(new CommandAlertLog());
 			cmdAlertLog.addHandler(fileHandle);
-			
+
 		}
 		catch (SecurityException e1)
 		{
@@ -117,8 +125,8 @@ public class CommandAlert extends JavaPlugin
 			log.log(Level.WARNING, "[CommandAlert] Could not create log file", e1);
 		}
 	}
-	
-	
+
+
 	class CommandAlertLog extends Formatter
 	{
 		@Override
@@ -126,32 +134,32 @@ public class CommandAlert extends JavaPlugin
 		{
 			return calcDate(rec.getMillis()) + "[INFO] " + formatMessage(rec) + "\r\n";
 		}
-		
+
 		private String calcDate(long millisecs)
 		{
 			return formatDateFromMs(millisecs, "yyyy-MM-dd HH:mm:ss ");
 		}
-		
+
 		@Override
 		public String getHead(Handler h)
 		{
 			return "";
 		}
-		
+
 		@Override
 		public String getTail(Handler h)
 		{
 			return "";
 		}
 	}
-	
+
 	public String formatDateFromMs(long millisecs, String format)
 	{
 		SimpleDateFormat date_format = new SimpleDateFormat(format);
 		Date resultdate = new Date(millisecs);
 		return date_format.format(resultdate);
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args)
 	{
@@ -160,11 +168,11 @@ public class CommandAlert extends JavaPlugin
 			sender.sendMessage("Commands can only be used in game");
 			return true;
 		}
-		
+
 		Player player = (Player)sender;
 		if (commandLabel.equalsIgnoreCase("cmdcheck") && hasPermission("commandalert.cmdcheck", player))
 		{
-			Location playerLocation = playerListener.alertLocations[args.length < 1 ? playerListener.index -1 : Integer.parseInt(args[0])];
+			Location playerLocation = playerListener.alertLocations[args.length < 1 ? playerListener.index - 1 : Integer.parseInt(args[0])];
 			if (args.length < 1)
 			{
 				player.sendMessage("Teleporting to last location history");
@@ -180,17 +188,17 @@ public class CommandAlert extends JavaPlugin
 			}
 			if (args.length == 3)
 			{
-				Location loc= null;
+				Location loc = null;
 				try
 				{
-				loc = new Location(playerLocation.getWorld(), Double.parseDouble(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]), player.getLocation().getYaw(), player.getLocation().getPitch());
+					loc = new Location(playerLocation.getWorld(), Double.parseDouble(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]), player.getLocation().getYaw(), player.getLocation().getPitch());
 				}
-				catch(NumberFormatException e)
+				catch (NumberFormatException e)
 				{
 					player.sendMessage("Values were in the incorrect formats");
 					return false;
 				}
-						
+
 				player.sendMessage("Teleporting...");
 				player.teleport(loc);
 				return true;
@@ -200,16 +208,16 @@ public class CommandAlert extends JavaPlugin
 				return false;
 			}
 		}
-		if(commandLabel.equalsIgnoreCase("cmdalertr"))
+		if (commandLabel.equalsIgnoreCase("cmdalertr"))
 		{
 			config.load();
 			playerListener.maxLocations = getLocationHistory();
 			playerListener.alertLocations = new Location[playerListener.maxLocations];
-			
+
 		}
 		return true;
 	}
-	
+
 	public void LoadSettings() throws Exception
 	{
 		if (!this.getDataFolder().exists())
@@ -235,17 +243,17 @@ public class CommandAlert extends JavaPlugin
 		}
 		config.load();
 	}
-	
+
 	public Boolean logToFile()
 	{
 		return config.getBoolean("logToFile", false);
 	}
-	
+
 	public String getMode()
 	{
 		return config.getString("mode", "blacklist");
 	}
-	
+
 	public ArrayList<String> getCommandList()
 	{
 		ArrayList<String> cmds = new ArrayList<String>();
@@ -260,7 +268,7 @@ public class CommandAlert extends JavaPlugin
 		}
 		return cmds;
 	}
-	
+
 	public Integer getLocationHistory()
 	{
 		return config.getInt("locationHistory", 30);
