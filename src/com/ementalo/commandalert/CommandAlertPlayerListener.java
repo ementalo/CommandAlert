@@ -78,6 +78,6 @@ public class CommandAlertPlayerListener extends PlayerListener
 
 	public void LogToFile(String formattedAlert)
 	{
-		CommandAlert.cmdAlertLog.info(formattedAlert);
+		CommandAlert.cmdAlertLog.info(ChatColor.stripColor(formattedAlert));
 	}
 }

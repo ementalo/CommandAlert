@@ -49,14 +49,15 @@ public class CommandAlert extends JavaPlugin
 	public void onDisable()
 	{
 		log.log(Level.INFO, "[CommandAlert] disabled");
-		fileHandle.close();
+		if (fileHandle != null)
+		{
+			fileHandle.close();
+		}
 	}
 
 	@Override
 	public void onEnable()
 	{
-
-		SetupLogging();
 		try
 		{
 			LoadSettings();
@@ -65,15 +66,17 @@ public class CommandAlert extends JavaPlugin
 		{
 			log.log(Level.SEVERE, "[CommandAlert] Could not load the config file", ex);
 		}
+		if (logToFile())
+		{
+			SetupLogging();
+		}
 		playerListener = new CommandAlertPlayerListener(this);
 		serverListener = new CommandAlertServerListener(this);
 		log.info("Loaded " + this.getDescription().getName() + " build " + this.getDescription().getVersion() + " maintained by " + this.getDescription().getAuthors());
-
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Lowest, this);
 		pm.registerEvent(Type.PLUGIN_ENABLE, serverListener, Priority.Low, this);
 		pm.registerEvent(Type.PLUGIN_DISABLE, serverListener, Priority.Low, this);
-
 	}
 
 	public Boolean hasPermission(String node, Player base)
@@ -83,7 +86,6 @@ public class CommandAlert extends JavaPlugin
 			if (base.isOp())
 			{
 				return true;
-				
 			}
 			return false;
 		}
@@ -115,7 +117,6 @@ public class CommandAlert extends JavaPlugin
 			fileHandle = new FileHandler(this.getDataFolder() + "/logs/" + formatDateFromMs(System.currentTimeMillis(), "yyyy-MM-dd") + ".log");
 			fileHandle.setFormatter(new CommandAlertLog());
 			cmdAlertLog.addHandler(fileHandle);
-
 		}
 		catch (SecurityException e1)
 		{
@@ -173,10 +174,18 @@ public class CommandAlert extends JavaPlugin
 		Player player = (Player)sender;
 		if (commandLabel.equalsIgnoreCase("cmdcheck") && hasPermission("commandalert.cmdcheck", player))
 		{
+			try
+			{
+				int id = Integer.parseInt(args[0]);
+			}
+			catch (NumberFormatException e)
+			{
+				return false;
+			}
 			Location playerLocation = playerListener.alertLocations[args.length < 1 ? playerListener.index - 1 : Integer.parseInt(args[0])];
 			if (args.length < 1)
 			{
-				if(playerLocation == null)
+				if (playerLocation == null)
 				{
 					player.sendMessage("Error: That location is no longer in the history");
 					return true;
@@ -191,6 +200,10 @@ public class CommandAlert extends JavaPlugin
 				{
 					player.sendMessage(ChatColor.RED + "That id is not present in the current location history list");
 				}
+				player.sendMessage("Teleporting to last location history");
+				player.teleport(playerLocation);
+				return true;
+
 			}
 			if (args.length > 1)
 			{
