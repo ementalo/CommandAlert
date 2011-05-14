@@ -17,7 +17,7 @@ public class CommandAlertPlayerListener extends PlayerListener
 	public CommandAlertPlayerListener(CommandAlert parent)
 	{
 		maxLocations = parent.getLocationHistory();
-		alertLocations =  new Location[maxLocations];
+		alertLocations = new Location[maxLocations];
 		this.parent = parent;
 	}
 
@@ -34,9 +34,11 @@ public class CommandAlertPlayerListener extends PlayerListener
 
 		if (parent.getMode().equalsIgnoreCase("blacklist") && !parent.getCommandList().contains(cmd.split(" ")[0].replace("/", "").toLowerCase()))
 		{
-			return;
+			if (!parent.getCommandList().contains("*"))
+			{
+				return;
+			}
 		}
-
 
 		//reset the index
 		if (index == maxLocations)
@@ -67,6 +69,6 @@ public class CommandAlertPlayerListener extends PlayerListener
 
 	public void LogToFile(String formattedAlert)
 	{
-		parent.cmdAlertLog.info(formattedAlert);
+		CommandAlert.cmdAlertLog.info(formattedAlert);
 	}
 }

@@ -35,12 +35,13 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 public class CommandAlert extends JavaPlugin
 {
 	private CommandAlertPlayerListener playerListener = null;
-	public Logger cmdAlertLog = Logger.getLogger("CommandAlert");
+	private CommandAlertServerListener serverListener = null;
+	public static final Logger cmdAlertLog = Logger.getLogger("CommandAlert");
 	static final Logger log = Logger.getLogger("Minecraft");
 	private static Yaml yaml = new Yaml(new SafeConstructor());
 	public Object permissions = null;
-	Plugin permPlugin = null;
-	Boolean isGm = false;
+	public Plugin permPlugin = null;
+	public Boolean isGm = false;
 	public Configuration config = null;
 	FileHandler fileHandle = null;
 	@Override
@@ -64,30 +65,14 @@ public class CommandAlert extends JavaPlugin
 			log.log(Level.SEVERE, "[CommandAlert] Could not load the config file", ex);
 		}
 		playerListener = new CommandAlertPlayerListener(this);
-		log.info("Loaded " + this.getDescription().getName() + " build " + this.getDescription().getVersion() + " maintained by " + this.getDescription().getAuthors());
-		log.log(Level.INFO, "[CommandAlert] Checking for permission plugins....");
-		permPlugin = this.getServer().getPluginManager().getPlugin("GroupManager");
-		if (permPlugin == null)
-		{
-			permPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
-			if (permPlugin == null)
-			{
-				log.log(Level.INFO, "[CommandAlert] Permissions plugins not found only ops can see the alerts");
-				return;
-			}
-			else
-			{
-				log.log(Level.INFO, "[CommandAlert] Found Permissions. Using it for permissions");
-			}
-		}
-		else
-		{
-			log.log(Level.INFO, "[CommandAlert] Found GroupManager. Using it for permissions");
-			isGm = true;
-		}
+		serverListener = new CommandAlertServerListener(this);
+		log.info("Loaded " + this.getDescription().getName() + " build " + this.getDescription().getVersion() + " maintained by " + this.getDescription().getAuthors());	
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Lowest, this);
+		pm.registerEvent(Type.PLUGIN_ENABLE, serverListener, Priority.Low, this);
+		pm.registerEvent(Type.PLUGIN_DISABLE, serverListener, Priority.Low, this);
+		
 	}
 	
 	public Boolean hasPermission(String node, Player base)
@@ -195,7 +180,17 @@ public class CommandAlert extends JavaPlugin
 			}
 			if (args.length == 3)
 			{
-				Location loc = new Location(playerLocation.getWorld(), Double.parseDouble(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]), player.getLocation().getYaw(), player.getLocation().getPitch());
+				Location loc= null;
+				try
+				{
+				loc = new Location(playerLocation.getWorld(), Double.parseDouble(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]), player.getLocation().getYaw(), player.getLocation().getPitch());
+				}
+				catch(NumberFormatException e)
+				{
+					player.sendMessage("Values were in the incorrect formats");
+					return false;
+				}
+						
 				player.sendMessage("Teleporting...");
 				player.teleport(loc);
 				return true;
@@ -204,6 +199,13 @@ public class CommandAlert extends JavaPlugin
 			{
 				return false;
 			}
+		}
+		if(commandLabel.equalsIgnoreCase("cmdalertr"))
+		{
+			config.load();
+			playerListener.maxLocations = getLocationHistory();
+			playerListener.alertLocations = new Location[playerListener.maxLocations];
+			
 		}
 		return true;
 	}

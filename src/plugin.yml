@@ -7,3 +7,6 @@ commands:
   cmdcheck:
     description: Teleports you to the location the commmand was used
     usage: /<command> <id| X Y Z>
+  cmdalertr:
+    description: Reloads the config file
+    usage: /<command>
