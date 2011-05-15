@@ -48,20 +48,27 @@ public class CommandAlertPlayerListener extends PlayerListener
 		{
 			index = 0;
 		}
+		alertLocations[index] = player.getLocation();
 
-		for (Player p : parent.getServer().getOnlinePlayers())
+		if (parent.showInGame())
 		{
-			if (parent.hasPermission("commandalert.alerts", p))
+			for (Player p : parent.getServer().getOnlinePlayers())
 			{
-				alertLocations[index] = player.getLocation();
-				p.sendMessage(FormatAlert(player, cmd));
-				if (parent.logToFile())
+				if (parent.hasPermission("commandalert.alerts", p))
 				{
-					LogToFile(FormatAlert(player, cmd) +" at " + FormatCoords(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()));
+					p.sendMessage(FormatAlert(player, cmd));
 				}
-				index++;
 			}
 		}
+		if (parent.logToFile())
+		{
+			LogToFile(FormatAlert(player, cmd) + " at " + FormatCoords(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ()));
+		}
+		if (parent.logToConsole())
+		{
+			CommandAlert.log.info(ChatColor.stripColor(FormatAlert(player, cmd) + " at " + FormatCoords(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ())));
+		}
+		index++;
 
 	}
 

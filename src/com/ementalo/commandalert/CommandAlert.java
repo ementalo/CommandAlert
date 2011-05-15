@@ -2,14 +2,11 @@ package com.ementalo.commandalert;
 
 import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -58,6 +55,7 @@ public class CommandAlert extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
+		config = getConfiguration();
 		try
 		{
 			LoadSettings();
@@ -174,7 +172,7 @@ public class CommandAlert extends JavaPlugin
 		Player player = (Player)sender;
 		if (commandLabel.equalsIgnoreCase("cmdcheck") && hasPermission("commandalert.cmdcheck", player))
 		{
-			int id =0;
+			int id = 0;
 			try
 			{
 				id = Integer.parseInt(args[0]);
@@ -229,29 +227,37 @@ public class CommandAlert extends JavaPlugin
 		{
 			this.getDataFolder().mkdirs();
 		}
-		File commandAlert = new File(this.getDataFolder(), "CommandAlert.yml");
-		if (!commandAlert.exists()) commandAlert.createNewFile();
-		config = new Configuration(commandAlert);
-		Map<String, Object> data = (Map<String, Object>)yaml.load(new FileReader(commandAlert));
-		if (data == null)
-		{
-			log.info("[CommandAlert] Generating CommandAlert config file.");
-			data = new HashMap<String, Object>();
-			data.put("mode", "blacklist");
-			data.put("commands", "warp, home, spawn");
-			data.put("logToFile", false);
-			data.put("locationHistory", 30);
-			FileWriter tx = new FileWriter(commandAlert);
-			tx.write(yaml.dump(data));
-			tx.flush();
-			tx.close();
-		}
+		config.load();
+		final List<String> keys = config.getKeys(null);
+		if (!keys.contains("mode"))
+			config.setProperty("mode", "blacklist");
+		if (!keys.contains("commands"))
+			config.setProperty("commands", "warp, home, spawn");
+		if (!keys.contains("showInGameAlert"))
+			config.setProperty("showInGameAlert", true);
+		if (!keys.contains("logToConsole"))
+			config.setProperty("logToConsole", false);
+		if (!keys.contains("logToFile"))
+			config.setProperty("logToFile", false);
+		if (!keys.contains("locationHistory"))
+			config.setProperty("locationHistory", 30);
+		config.save();
 		config.load();
 	}
 
 	public Boolean logToFile()
 	{
 		return config.getBoolean("logToFile", false);
+	}
+
+	public Boolean showInGame()
+	{
+		return config.getBoolean("showInGameAlert", true);
+	}
+
+	public Boolean logToConsole()
+	{
+		return config.getBoolean("logToConsole", false);
 	}
 
 	public String getMode()
