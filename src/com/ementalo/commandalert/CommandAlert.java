@@ -13,7 +13,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import org.anjocaido.groupmanager.GroupManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -38,7 +37,6 @@ public class CommandAlert extends JavaPlugin
 	private static Yaml yaml = new Yaml(new SafeConstructor());
 	public Object permissions = null;
 	public Plugin permPlugin = null;
-	public Boolean isGm = false;
 	public Configuration config = null;
 	FileHandler fileHandle = null;
 
@@ -87,18 +85,8 @@ public class CommandAlert extends JavaPlugin
 			}
 			return false;
 		}
-
-		if (isGm)
-		{
-			GroupManager gm = (GroupManager)permPlugin;
-			return gm.getWorldsHolder().getWorldPermissions(base).has(base, node);
-		}
-		else
-		{
 			Permissions pm = (Permissions)permPlugin;
 			return pm.getHandler().has(base, node);
-		}
-
 	}
 
 	public void SetupLogging()
