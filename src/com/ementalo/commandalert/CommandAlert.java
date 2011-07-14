@@ -1,5 +1,6 @@
 package com.ementalo.commandalert;
 
+import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class CommandAlert extends JavaPlugin
 	public static final Logger cmdAlertLog = Logger.getLogger("CommandAlert");
 	static final Logger log = Logger.getLogger("Minecraft");
 	private static Yaml yaml = new Yaml(new SafeConstructor());
-	public Object permissions = null;
+	public static PermissionHandler permissionHandler = null;
 	public Plugin permPlugin = null;
 	public Configuration config = null;
 	FileHandler fileHandle = null;
@@ -85,8 +86,11 @@ public class CommandAlert extends JavaPlugin
 			}
 			return false;
 		}
-			Permissions pm = (Permissions)permPlugin;
-			return pm.getHandler().has(base, node);
+		if(permissionHandler == null)
+		{
+		permissionHandler = ((Permissions)permPlugin).getHandler();
+		}
+		return permissionHandler.has(base, node);
 	}
 
 	public void SetupLogging()
