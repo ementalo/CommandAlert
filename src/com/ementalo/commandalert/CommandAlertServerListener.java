@@ -25,7 +25,7 @@ public class CommandAlertServerListener implements Listener
         if (parent.permsBase != null) return;
         if (parent.config.getUseBukkitPerms()) {
             parent.permsBase = new BukkitPerms();
-            CommandAlert.log.log(Level.INFO, "[TeleConfirmLite] Using bukkit permissions");
+            CommandAlert.log.log(Level.INFO, "[CommandAlert] Using bukkit permissions");
             return;
         }
 
@@ -37,7 +37,7 @@ public class CommandAlertServerListener implements Listener
         if (permPlugin != null && permPlugin.isEnabled()) {
             parent.permsBase = new bPermissionsPerms();
             permPlugin = null;
-            CommandAlert.log.log(Level.INFO, "[TeleConfirmLite] Found bPermissions. Using it for permissions");
+            CommandAlert.log.log(Level.INFO, "[CommandAlert] Found bPermissions. Using it for permissions");
             return;
         }
 
@@ -45,7 +45,7 @@ public class CommandAlertServerListener implements Listener
         if (permPlugin != null && permPlugin.isEnabled()) {
             parent.permsBase = new GroupManagerPerms(permPlugin);
             permPlugin = null;
-            CommandAlert.log.log(Level.INFO, "[TeleConfirmLite] Found GroupManager. Using it for permissions");
+            CommandAlert.log.log(Level.INFO, "[CommandAlert] Found GroupManager. Using it for permissions");
             return;
         }
 
@@ -53,7 +53,7 @@ public class CommandAlertServerListener implements Listener
         if (permPlugin != null && permPlugin.isEnabled()) {
             parent.permsBase = new PexPerms();
             permPlugin = null;
-            CommandAlert.log.log(Level.INFO, "[TeleConfirmLite] Found PermissionsEx. Using it for permissions");
+            CommandAlert.log.log(Level.INFO, "[CommandAlert] Found PermissionsEx. Using it for permissions");
             return;
         }
 
@@ -61,7 +61,7 @@ public class CommandAlertServerListener implements Listener
         if (permPlugin != null && permPlugin.isEnabled()) {
             parent.permsBase = new P3Perms(permPlugin);
             permPlugin = null;
-            CommandAlert.log.log(Level.INFO, "[TeleConfirmLite] Found Permissions. Using it for permissions");
+            CommandAlert.log.log(Level.INFO, "[CommandAlert] Found Permissions. Using it for permissions");
         }
     }
 
@@ -74,7 +74,7 @@ public class CommandAlertServerListener implements Listener
                 || pluginName.equalsIgnoreCase("GroupManager")
                 || pluginName.equalsIgnoreCase("PermissionsEx")) {
             parent.permsBase = null;
-            CommandAlert.log.log(Level.INFO, "[TeleConfirmLite] " + pluginName + " disabled. Commands available to all");
+            CommandAlert.log.log(Level.INFO, "[CommandAlert] " + pluginName + " disabled. Commands available to all");
         }
     }
 }
